@@ -3,7 +3,7 @@ from langchain.chains import RetrievalQA
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.vectorstores import FAISS
-from utils import get_coords
+from utils import get_risk_data
 
 app = Flask(__name__)
 
@@ -16,10 +16,7 @@ def health_check():
 @app.route("/query/<prompt>")
 def answer_query(prompt):
     embeddings = OpenAIEmbeddings()
-    new_vectorstore = FAISS.load_local("faiss_learn_python", embeddings)
-
-    # Define a query
-    query = "What are some fun facts about Tucson, Arizona?"
+    db = FAISS.load_local("arizona", embeddings)
 
     # Create a retrieval-based QA system
     qa = RetrievalQA.from_chain_type(
@@ -28,18 +25,16 @@ def answer_query(prompt):
 
     # Run the query and print the result
     try:
-        res = qa.run(query)
+        res = qa.run(prompt)
         return jsonify({"success": True, "prompt": prompt, "response": res}, 200)
     except:
         abort(500)
 
 
 @app.route("/risk/<location>")
-def get_risk(location):
-    lat, long = get_coords(location)
-
+def return_risk(location):
     try:
-        risk_data = get_risk(lat, long)
+        risk_data = get_risk_data(location)
         return jsonify({"success": True, "location": location, "data": risk_data}, 200)
     except:
         abort(500)
