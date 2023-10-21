@@ -13,9 +13,12 @@ def get_coords(location: str) -> tuple:
         return "Location not found"
 
 
-def get_risk(lat: float, long: float) -> float:
+def get_risk_data(location):
     # API key
     load_dotenv()
+
+    lat, long = get_coords(location)
+
     # call Ambee
     headers = {
         "x-api-key": os.getenv("AMBEE_API_KEY"),
